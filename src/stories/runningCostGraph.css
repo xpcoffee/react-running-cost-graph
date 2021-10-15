@@ -20,6 +20,10 @@
   font-size: 12px;
   padding: 10px 16px;
 }
+.storybook-button--argh {
+  font-size: 12px;
+  padding: 100px 160px;
+}
 .storybook-button--medium {
   font-size: 14px;
   padding: 11px 20px;
