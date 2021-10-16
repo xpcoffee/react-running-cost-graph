@@ -13,7 +13,7 @@ export const Default = Template.bind({});
 Default.args = {
   seriesDefinitions: [
     {
-      label: "foo",
+      label: "one",
       formula: (value) => value + 1,
       startValue: 0,
       startTimeEpochSeconds: 0,
@@ -21,12 +21,12 @@ Default.args = {
       timeDeltaEpochSeconds: 5,
     },
     {
-      label: "bar",
+      label: "two",
       formula: (value) => value + 3,
       startValue: 0,
       startTimeEpochSeconds: 0,
-      numberOfSteps: 50,
-      timeDeltaEpochSeconds: 1,
+      numberOfSteps: 10,
+      timeDeltaEpochSeconds: 5,
     },
   ],
 };
