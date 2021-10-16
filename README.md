@@ -24,7 +24,7 @@ A quick look at the top-level files and directories included with this template.
 
 1.  **`.storybook`**: This directory contains Storybook's [configuration](https://storybook.js.org/docs/react/configure/overview) files.
 1.  **`src`**: Source code.
-1.  **`public`**: Resources for the production site (should disappear soon).
+1.  **`src/stories`**: Source code for Storybook examples.
 1.  **`.env`**: Simple text configuration file for controlling the application's environment constants.
 
 [1]:https://storybook.js.org/

@@ -1,13 +1,32 @@
-import React from 'react';
+import React from "react";
 
-import { RunningCostGraph } from './RunningCostGraph';
+import { RunningCostGraph } from "../RunningCostGraph";
 
 export default {
-  title: 'Example/Button',
+  title: "RunningCostGraph",
   component: RunningCostGraph,
 };
 
 const Template = (args) => <RunningCostGraph {...args} />;
 
 export const Default = Template.bind({});
-Default.args = {};
+Default.args = {
+  seriesDefinitions: [
+    {
+      label: "foo",
+      formula: (value) => value + 1,
+      startValue: 0,
+      startTimeEpochSeconds: 0,
+      numberOfSteps: 10,
+      timeDeltaEpochSeconds: 5,
+    },
+    {
+      label: "bar",
+      formula: (value) => value + 3,
+      startValue: 0,
+      startTimeEpochSeconds: 0,
+      numberOfSteps: 50,
+      timeDeltaEpochSeconds: 1,
+    },
+  ],
+};
