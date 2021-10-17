@@ -36,5 +36,6 @@ export function computeSeries({label, startValue, startTimeEpochSeconds, numberO
         data.push({value, timeStampEpochSeconds});
     }
 
+    console.table(data);
     return {label, data};
 }

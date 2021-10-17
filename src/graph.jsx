@@ -17,7 +17,7 @@ import {
  * xAccessor: (d: VisXGraphLineSeriesDatum) => any;
  * yAccessor: (d: VisXGraphLineSeriesDatum) => any
  * }} VisXLineSeriesParams
- * @typedef {{x: string; y: number}} VisXGraphLineSeriesDatum
+ * @typedef {{x: number; y: number}} VisXGraphLineSeriesDatum
  * @typedef {(d: VisXGraphLineSeriesDatum) => any} VisXGraphAccessor
  * @typedef {VisXGraphLineSeriesDatum[]} VisXGraphLineSeriesData
  */
@@ -32,12 +32,19 @@ export const getGraph = buildVisXGraph;
 /**
  * @type {VisXGraphAccessor}
  */
-const xAccessor = (d) => d.x;
+const xAccessor = (d) => {
+  if(!d?.x) {
+    return undefined;
+  }
+  const date = new Date(0) 
+  date.setUTCSeconds(d.x);
+  return date;
+}
 
 /**
  * @type {VisXGraphAccessor}
  */
-const yAccessor = (d) => d.y;
+const yAccessor = (d) => d?.y;
 
 /**
  * Creates a VisX graph from internal data
@@ -50,7 +57,7 @@ function buildVisXGraph(allSeries) {
     .map(AnimatedLineSeries);
 
   return (
-    <XYChart height={300} xScale={{ type: "band" }} yScale={{ type: "linear" }}>
+      <XYChart height={300} xScale={{ type: "time"}} yScale={{ type: "linear" }}>
       <AnimatedAxis orientation="bottom" />
       <AnimatedGrid columns={false} numTicks={4} />
       <Tooltip
@@ -60,13 +67,13 @@ function buildVisXGraph(allSeries) {
         showSeriesGlyphs
         renderTooltip={({ tooltipData, colorScale }) => (
           <div>
-            <div style={{ color: colorScale(tooltipData.nearestDatum.key) }}>
-              {tooltipData.nearestDatum.key}
+            <div style={{ color: colorScale?.(tooltipData?.nearestDatum?.key ?? "") }}>
+              {tooltipData?.nearestDatum?.key}
             </div>
             {xAccessor(
               // @ts-ignore
               tooltipData.nearestDatum.datum
-            )}
+            ).toString()}
             {", "}
             {yAccessor(
               // @ts-ignore
@@ -90,7 +97,7 @@ function seriesToVisXLineSerieParams(series) {
   console.log({dataKey});
 
   const data = series.data.map((datum) => ({
-    x: datum.timeStampEpochSeconds.toString(),
+    x: datum.timeStampEpochSeconds,
     y: datum.value,
   }));
 
