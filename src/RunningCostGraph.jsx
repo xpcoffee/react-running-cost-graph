@@ -1,29 +1,33 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import './runningCostGraph.css';
-import { computeSeries } from './series';
+import { computeSeries, prepareSeriesParams } from './series';
 import { getGraph } from './graph';
 
 /**
  * Computes running costs and graphs them.
  * 
- * @param {{seriesDefinitions: import('./series').SeriesParams[]}} props
+ * @typedef {{
+ *   startTimeEpochSeconds: number,
+ *   endTimeEpochSeconds: number,
+ *   seriesDefinitions: import('./series').SeriesDefinition[]
+ * }} Props
+ * @param {Props} props
  */
-export const RunningCostGraph = ({seriesDefinitions}) => {
-  const allSeries = seriesDefinitions.map(computeSeries);
+export const RunningCostGraph = ({ seriesDefinitions, startTimeEpochSeconds, endTimeEpochSeconds }) => {
+  const allSeries = seriesDefinitions
+    .map(definition => prepareSeriesParams({ definition, startTimeEpochSeconds, endTimeEpochSeconds }))
+    .map(computeSeries);
+
   return getGraph(allSeries);
 };
 
-/**
- */
-
 RunningCostGraph.propTypes = {
-  series: PropTypes.arrayOf(PropTypes.shape({
+  startTimeEpochSeconds: PropTypes.number.isRequired,
+  endTimeEpochSeconds: PropTypes.number.isRequired,
+  seriesDefinitions: PropTypes.arrayOf(PropTypes.shape({
     formula: PropTypes.func.isRequired,
     startValue: PropTypes.number.isRequired,
-    numberOfSteps: PropTypes.number.isRequired, 
-    endTimeEpochSeconds: PropTypes.number.isRequired, 
-    timeDeltaEpochSeconds: PropTypes.number.isRequired
+    numberOfSteps: PropTypes.number.isRequired,
   })).isRequired,
 };
 
