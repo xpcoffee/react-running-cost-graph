@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import './runningCostGraph.css';
-import { computeSeries, prepareSeriesParams } from './series';
-import { getGraph } from './graph';
+import { computeSeries, prepareSeriesParams } from '../series';
+import { getGraph } from '../graph';
 
 /**
  * Computes running costs and graphs them.
@@ -9,7 +9,7 @@ import { getGraph } from './graph';
  * @typedef {{
  *   startTimeEpochSeconds: number,
  *   endTimeEpochSeconds: number,
- *   seriesDefinitions: import('./series').SeriesDefinition[]
+ *   seriesDefinitions: import('../series').SeriesDefinition[]
  * }} Props
  * @param {Props} props
  */
@@ -25,9 +25,12 @@ RunningCostGraph.propTypes = {
   startTimeEpochSeconds: PropTypes.number.isRequired,
   endTimeEpochSeconds: PropTypes.number.isRequired,
   seriesDefinitions: PropTypes.arrayOf(PropTypes.shape({
-    formula: PropTypes.func.isRequired,
+    label: PropTypes.string.isRequired,
     startValue: PropTypes.number.isRequired,
-    numberOfSteps: PropTypes.number.isRequired,
+    components: PropTypes.arrayOf(PropTypes.shape({
+      formula: PropTypes.func.isRequired,
+      timeDeltaEpochSeconds: PropTypes.number.isRequired,
+    }))
   })).isRequired,
 };
 

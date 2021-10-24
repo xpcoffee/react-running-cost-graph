@@ -33,10 +33,10 @@ export const getGraph = buildVisXGraph;
  * @type {VisXGraphAccessor}
  */
 const xAccessor = (d) => {
-  if(!d?.x) {
+  if (!d?.x) {
     return undefined;
   }
-  const date = new Date(0) 
+  const date = new Date(0)
   date.setUTCSeconds(d.x);
   return date;
 }
@@ -57,7 +57,7 @@ function buildVisXGraph(allSeries) {
     .map(AnimatedLineSeries);
 
   return (
-      <XYChart height={300} xScale={{ type: "time"}} yScale={{ type: "linear" }}>
+    <XYChart height={300} xScale={{ type: "time" }} yScale={{ type: "linear" }}>
       <AnimatedAxis orientation="bottom" />
       <AnimatedGrid columns={false} numTicks={4} />
       <Tooltip
@@ -94,7 +94,6 @@ function buildVisXGraph(allSeries) {
  */
 function seriesToVisXLineSerieParams(series) {
   const dataKey = series.label;
-  console.log({dataKey});
 
   const data = series.data.map((datum) => ({
     x: datum.timeStampEpochSeconds,

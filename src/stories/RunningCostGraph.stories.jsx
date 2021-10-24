@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import React from "react";
 
-import { RunningCostGraph } from "../RunningCostGraph";
+import { RunningCostGraph } from "..";
 
 export default {
   title: "RunningCostGraph",
@@ -10,7 +10,7 @@ export default {
 
 /**
  * The template to use to define Storybook examples.
- * @param {import("../RunningCostGraph").Props} args 
+ * @param {import("../components/RunningCostGraph").Props} args 
  */
 const Template = (args) => <RunningCostGraph {...args} />;
 
@@ -22,6 +22,7 @@ const daysInSeconds = (days) => days * 60 * 60 * 24
 
 /**
  * Default example.
+ * @type {{args: import("../components/RunningCostGraph").Props}}
  */
 export const Default = Template.bind({});
 Default.args = {
@@ -30,15 +31,49 @@ Default.args = {
   seriesDefinitions: [
     {
       label: "one",
-      formula: (value) => value + 1,
       startValue: 0,
-      timeDeltaEpochSeconds: daysInSeconds(5)
+      components: [
+        {
+          formula: (value) => value + 1,
+          timeDeltaEpochSeconds: daysInSeconds(5)
+        }
+      ]
     },
     {
       label: "two",
-      formula: (value) => value + 3,
       startValue: 0,
-      timeDeltaEpochSeconds: daysInSeconds(3),
+      components: [
+        {
+          formula: (value) => value + 3,
+          timeDeltaEpochSeconds: daysInSeconds(3),
+        }
+      ]
     },
+  ],
+};
+
+/**
+ * With multiple components in one series.
+ * @type {{args: import("../components/RunningCostGraph").Props}}
+ */
+export const MultipleComponents = Template.bind({});
+MultipleComponents.args = {
+  startTimeEpochSeconds: DateTime.now().toSeconds(),
+  endTimeEpochSeconds: DateTime.now().plus({ days: 30 }).toSeconds(),
+  seriesDefinitions: [
+    {
+      label: "one + two",
+      startValue: 0,
+      components: [
+        {
+          formula: (value) => value + 1,
+          timeDeltaEpochSeconds: daysInSeconds(5)
+        },
+        {
+          formula: (value) => value + 3,
+          timeDeltaEpochSeconds: daysInSeconds(3),
+        }
+      ]
+    }
   ],
 };
