@@ -16,7 +16,7 @@ import { getGraph } from '../graph';
 export const RunningCostGraph = ({ seriesDefinitions, startTimeEpochSeconds, endTimeEpochSeconds }) => {
   const allSeries = seriesDefinitions
     .map(definition => prepareSeriesParams({ definition, startTimeEpochSeconds, endTimeEpochSeconds }))
-    .map(computeSeries);
+    .flatMap(computeSeries);
 
   return getGraph(allSeries);
 };
