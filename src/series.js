@@ -1,5 +1,5 @@
-import { DateTime } from "luxon";
 import Heap from "mnemonist/heap";
+import { InvalidParameterException } from "./components/errors";
 
 /**
  * Functions that work with/compute series.
@@ -36,6 +36,8 @@ import Heap from "mnemonist/heap";
  *   plotType: "off" | "alongside" | "only" ;
  *   prefix: string;
  * }} RunningCostConfig
+ * 
+ * @typedef {{timeStamp: number, component: SeriesComponentDefinition}} ComputeHeapMember
  */
 
 /**
@@ -80,11 +82,31 @@ export function computeSeries({
      * @type SeriesDatapoint[]
      */
     const data = [{ value, timeStampEpochSeconds }];
-    console.log({ data })
+    index++;
+
     /**
      * @type SeriesDatapoint[] | undefined
      */
     const runningCostData = runningCostConfig.plotType === "off" ? undefined : [{ value: 0, timeStampEpochSeconds }];
+
+    /**
+     * Calculates a single datum from a given tuple.
+     * @param {{
+     *   tuple: ComputeHeapMember;
+     *   currentStepIndex: number;
+     * }} args
+     */
+    function computeDatum({ tuple, currentStepIndex }) {
+        const newValue = tuple.component.formula({
+            lastValue: data[currentStepIndex - 1].value,
+            currentStepIndex,
+            seriesSoFar: data,
+            lastTimeStampEpochSeconds: tuple.timeStamp
+        });
+
+        const nextTimeStampForFormula = getTimeDeltaEpochSeconds(tuple.component, tuple.timeStamp);
+        return { nextTimeStampForFormula, value: newValue }
+    }
 
     while (computeHeap.size) {
         const tuple = computeHeap.pop();
@@ -93,18 +115,7 @@ export function computeSeries({
             continue;
         }
 
-        const result = (function computeDatum() {
-            const prevValue = value;
-            const newValue = tuple.component.formula({
-                lastValue: prevValue,
-                currentStepIndex: index,
-                seriesSoFar: data,
-                lastTimeStampEpochSeconds: tuple.timeStamp
-            });
-
-            const nextTimeStampForFormula = getTimeDeltaEpochSeconds(tuple.component, tuple.timeStamp);
-            return { nextTimeStampForFormula, value: newValue }
-        })();
+        const result = computeDatum({ tuple, currentStepIndex: index });
 
         const delta = result.value - value;
         // Only accumulate costs
@@ -112,7 +123,7 @@ export function computeSeries({
         value = result.value;
 
         const existingDatum = data[index]
-        console.log({ existingDatum })
+
         if (timeStampEpochSeconds === tuple.timeStamp && existingDatum) {
             // update existing datum
             existingDatum.value = value;
@@ -164,7 +175,6 @@ export function computeSeries({
  */
 function prepareComputeHeap({ startTimeEpochSeconds, components }) {
     /**
-     * @typedef {{timeStamp: number, component: SeriesComponentDefinition}} ComputeHeapMember
      * @param {ComputeHeapMember} a 
      * @param {ComputeHeapMember} b 
      * @returns number
@@ -206,7 +216,7 @@ function getTimeDeltaEpochSeconds(component, timeStampEpochSeconds) {
     }
 
     if (nextTimeStampForFormula === undefined) {
-        throw ("Component must specify either timeDelta or timeDeltaEpochSeconds");
+        throw new InvalidParameterException("Component must specify either timeDelta or timeDeltaEpochSeconds");
     }
 
     return nextTimeStampForFormula;

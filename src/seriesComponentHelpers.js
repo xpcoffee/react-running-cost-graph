@@ -1,4 +1,5 @@
 import { DateTime } from "luxon";
+import { InvalidParameterException } from "./components/errors";
 
 /**
  * Helper functions for common series components
@@ -10,30 +11,16 @@ import { DateTime } from "luxon";
  * 
  * @param {{
  *   interestRate: number, 
- *   compoundingPeriodEpochSeconds?: number,
- *   compoundingPeriodDays?: number,
- *   compoundingPeriodWeeks?: number,
- *   compoundingPeriodMonths?: number,
- *   compoundingPeriodYears?: number,
+ *   compoundingPeriod: number,
+ *   compoundingPeriodUnit: "seconds" | "days" | "weeks" | "months" | "years",
  * }} args
  * @returns {import("./series").SeriesComponentDefinition}
  */
 export function compoundInterest({
     interestRate,
-    compoundingPeriodEpochSeconds,
-    compoundingPeriodDays,
-    compoundingPeriodWeeks,
-    compoundingPeriodMonths,
-    compoundingPeriodYears,
+    compoundingPeriod,
+    compoundingPeriodUnit,
 }) {
-    if (!(compoundingPeriodEpochSeconds
-        || compoundingPeriodDays
-        || compoundingPeriodWeeks
-        || compoundingPeriodMonths
-        || compoundingPeriodYears)) {
-        throw "compoundInterest must be provided a compounding period";
-    }
-
     return {
         formula: ({ lastValue, lastTimeStampEpochSeconds }) => {
             if (lastValue < 0) {
@@ -41,57 +28,41 @@ export function compoundInterest({
                 return lastValue;
             }
 
-            /**
-             * @type number
-             */
-            let divider = 1;
-            const nextYear = DateTime.fromSeconds(lastTimeStampEpochSeconds).plus({ years: 1 })
-                .diff(DateTime.fromSeconds(lastTimeStampEpochSeconds));
-            console.log({ nextYear });
+            const nextYear = (DateTime.fromSeconds(lastTimeStampEpochSeconds).plus({ years: 1 }));
 
-            if (compoundingPeriodEpochSeconds) {
-                divider = nextYear.seconds;
-            }
+            const divider = (function determineDivider() {
+                switch (compoundingPeriodUnit) {
+                    case "seconds":
+                        return nextYear.diff(DateTime.fromSeconds(lastTimeStampEpochSeconds), "seconds").seconds;
+                    case "days":
+                        return nextYear.diff(DateTime.fromSeconds(lastTimeStampEpochSeconds), "days").days;
+                    case "weeks":
+                        return nextYear.diff(DateTime.fromSeconds(lastTimeStampEpochSeconds), "weeks").weeks;
+                    case "months":
+                        return nextYear.diff(DateTime.fromSeconds(lastTimeStampEpochSeconds), "months").months;
+                    case "years":
+                        return nextYear.diff(DateTime.fromSeconds(lastTimeStampEpochSeconds), "years").years;
+                    default:
+                        throw new InvalidParameterException("Unknown compound interest period unit: " + compoundingPeriodUnit);
+                }
+            })()
 
-            if (compoundingPeriodDays) {
-                divider = nextYear.days;
-            }
-
-            if (compoundingPeriodWeeks) {
-                divider = nextYear.weeks;
-            }
-
-            if (compoundingPeriodMonths) {
-                divider = nextYear.months;
-            }
-
-            if (compoundingPeriodYears) {
-                divider = 1;
-            }
-
-            console.log({ divider });
-
-            return lastValue * (1 + interestRate / 12)
+            return lastValue * (1 + interestRate / divider)
         },
         nextTime: ({ lastTimeStampEpochSeconds }) => {
-            if (compoundingPeriodEpochSeconds) {
-                return lastTimeStampEpochSeconds + compoundingPeriodEpochSeconds;
-            }
-
-            if (compoundingPeriodDays) {
-                return DateTime.fromSeconds(lastTimeStampEpochSeconds).plus({ days: compoundingPeriodDays }).toSeconds();
-            }
-
-            if (compoundingPeriodWeeks) {
-                return DateTime.fromSeconds(lastTimeStampEpochSeconds).plus({ weeks: compoundingPeriodWeeks }).toSeconds();
-            }
-
-            if (compoundingPeriodMonths) {
-                return DateTime.fromSeconds(lastTimeStampEpochSeconds).plus({ months: compoundingPeriodMonths }).toSeconds();
-            }
-
-            if (compoundingPeriodYears) {
-                return DateTime.fromSeconds(lastTimeStampEpochSeconds).plus({ years: compoundingPeriodYears }).toSeconds();
+            switch (compoundingPeriodUnit) {
+                case "seconds":
+                    return lastTimeStampEpochSeconds + compoundingPeriod;
+                case "days":
+                    return DateTime.fromSeconds(lastTimeStampEpochSeconds).plus({ days: compoundingPeriod }).toSeconds();
+                case "weeks":
+                    return DateTime.fromSeconds(lastTimeStampEpochSeconds).plus({ weeks: compoundingPeriod }).toSeconds();
+                case "months":
+                    return DateTime.fromSeconds(lastTimeStampEpochSeconds).plus({ months: compoundingPeriod }).toSeconds();
+                case "years":
+                    return DateTime.fromSeconds(lastTimeStampEpochSeconds).plus({ years: compoundingPeriod }).toSeconds();
+                default:
+                    throw new InvalidParameterException("Unknown compound interest period unit: " + compoundingPeriodUnit);
             }
         }
     }

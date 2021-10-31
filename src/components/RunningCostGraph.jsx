@@ -27,9 +27,14 @@ RunningCostGraph.propTypes = {
   seriesDefinitions: PropTypes.arrayOf(PropTypes.shape({
     label: PropTypes.string.isRequired,
     startValue: PropTypes.number.isRequired,
+    runningCostConfig: PropTypes.shape({
+      plotType: PropTypes.oneOf(["off", "only", "alongside"]).isRequired,
+      prefix: PropTypes.string.isRequired,
+    }),
     components: PropTypes.arrayOf(PropTypes.shape({
       formula: PropTypes.func.isRequired,
-      timeDeltaEpochSeconds: PropTypes.number.isRequired,
+      timeDeltaEpochSeconds: PropTypes.number,
+      nextTime: PropTypes.func,
     }))
   })).isRequired,
 };

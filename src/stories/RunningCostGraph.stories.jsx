@@ -100,7 +100,7 @@ CompoundInterestComponentHelper.args = {
         /**
          * 5% interest compounded monthly
          */
-        compoundInterest({ interestRate: compoundInterestHelperInterestRate, compoundingPeriodMonths: 1 })
+        compoundInterest({ interestRate: compoundInterestHelperInterestRate, compoundingPeriod: 1, compoundingPeriodUnit: "months" })
       ]
     },
     {
@@ -119,7 +119,7 @@ CompoundInterestComponentHelper.args = {
 const mortgage = 300000;
 const monthlyPayments = 2000;
 const annualMortgageInterestRate = 0.015; // 1.5% interest rate
-const thirtyYearsFromNow = now.plus({ years: 30 }).toSeconds();
+const thirtyYearsFromNow = now.plus({ years: 25 }).toSeconds();
 /**
  * Example of a mortgage getting repaid and the running cost to repay it
  * 
@@ -141,7 +141,7 @@ RunningCostPlottedAlongside.args = {
         /**
          * Mortgage
          */
-        compoundInterest({ interestRate: annualMortgageInterestRate, compoundingPeriodMonths: 1 }),
+        compoundInterest({ interestRate: annualMortgageInterestRate, compoundingPeriod: 1, compoundingPeriodUnit: "months" }),
         {
           nextTime: ({ lastTimeStampEpochSeconds }) => DateTime.fromSeconds(lastTimeStampEpochSeconds).plus({ months: 1 }).toSeconds(),
           formula: ({ lastValue }) => {
@@ -188,7 +188,7 @@ RunningCostPlottedAlone.args = {
         /**
          * Mortgage
          */
-        compoundInterest({ interestRate: annualMortgageInterestRate, compoundingPeriodMonths: 1 }),
+        compoundInterest({ interestRate: annualMortgageInterestRate, compoundingPeriod: 1, compoundingPeriodUnit: "months" }),
         {
           nextTime: ({ lastTimeStampEpochSeconds }) => DateTime.fromSeconds(lastTimeStampEpochSeconds).plus({ months: 1 }).toSeconds(),
           formula: ({ lastValue }) => {
